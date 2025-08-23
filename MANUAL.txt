@@ -1,0 +1,25 @@
+LOCAL SETUP (Windows/macOS/Linux)
+1) Install Docker Desktop (or Docker Engine) and Node 18+.
+2) In project root:
+   docker-compose up -d
+   # Starts Postgres on localhost:5432 with db=phsp user=phsp pass=phsp.
+3) Copy env:
+   cp .env.example .env
+   # Edit .env and set a long random SESSION_SECRET.
+4) Install and start:
+   npm install
+   npm start
+5) Verify:
+   - Open http://localhost:8080/healthz -> {"ok": true}
+   - Visit /signup, create a user (password >= 8). SAVE the recovery code.
+   - After signup, /as should be accessible (locked pages require auth).
+   - /li to log in; /forgot to reset password with the recovery code.
+6) One-account-per-device:
+   - The signup page generates localStorage["phsp_device_id"] and sends it.
+   - The server enforces unique device_id; a second signup on the same machine returns 429.
+7) Troubleshooting:
+   - If the server shows "ECONNREFUSED" or similar, ensure Docker is running and "docker-compose up -d" succeeded.
+   - If you change DB creds/port, update .env DATABASE_URL.
+   - To inspect DB:
+     psql "postgresql://phsp:phsp@localhost:5432/phsp"
+     \dt
