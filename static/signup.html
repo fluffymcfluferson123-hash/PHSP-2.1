@@ -1,32 +1,60 @@
 <!doctype html>
 <html lang="en">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="referrer" content="no-referrer" />
-    <meta http-equiv="X-Frame-Options" content="SAMEORIGIN" />
-    <meta http-equiv="X-Content-Type-Options" content="nosniff" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <link rel="shortcut icon" id="tab-favicon" href="favicon.png" />
-    <title id="tab-title">Sign Up</title>
-    <link rel="stylesheet" href="/assets/css/global.css?v=2" />
-    <link rel="stylesheet" href="/assets/css/login.css" />
-    <link rel="stylesheet" href="/assets/css/nav.css" />
-    <script src="https://kit.fontawesome.com/1237c86ba0.js" crossorigin="anonymous"></script>
-  </head>
-  <body>
-    <div class="fixed-nav-bar"></div>
-    <div class="auth-container">
-      <form id="signup-form" class="auth-form">
-        <h2>Sign Up</h2>
-        <input type="text" id="signup-username" placeholder="Username" required autocomplete="username" />
-        <input type="password" id="signup-password" placeholder="Password" required autocomplete="new-password" />
-        <p id="signup-error" class="error-message"></p>
-        <button type="submit">Sign Up</button>
-      </form>
+<head>
+  <meta charset="UTF-8" />
+  <title>Signup</title>
+  <link rel="stylesheet" href="/style.css" />
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/toastify-js/src/toastify.min.css" />
+</head>
+<body>
+  <div class="card">
+    <h1>Sign Up</h1>
+    <input id="username" placeholder="Username" />
+    <div id="uErr" class="error"></div>
+    <input id="password" type="password" placeholder="Password (min 8 chars)" />
+    <div id="pErr" class="error"></div>
+    <button id="signupBtn">Sign Up</button>
+    <div id="deviceErr" class="error"></div>
+    <div id="recoveryBox" style="display:none;margin-top:10px;">
+      <p>Recovery code:</p>
+      <pre id="recovery"></pre>
+      <p class="error">Save this now</p>
     </div>
-    <div class="auth-toggle">
-      <a href="/li" class="switch-link">Login</a>
-    </div>
-    <script src="/assets/scripts/signup.js"></script>
-  </body>
+    <p><a href="/li">Already have an account? Log in</a></p>
+  </div>
+  <script src="https://cdn.jsdelivr.net/npm/toastify-js"></script>
+  <script>
+    function getDeviceId() {
+      let id = localStorage.getItem('phsp_device_id');
+      if (!id) {
+        const arr = crypto.getRandomValues(new Uint8Array(16));
+        id = Array.from(arr).map(b => b.toString(16).padStart(2,'0')).join('');
+        localStorage.setItem('phsp_device_id', id);
+      }
+      return id;
+    }
+    document.getElementById('signupBtn').onclick = async () => {
+      const username = document.getElementById('username').value.trim();
+      const password = document.getElementById('password').value;
+      document.getElementById('uErr').textContent='';
+      document.getElementById('pErr').textContent='';
+      document.getElementById('deviceErr').textContent='';
+      if (!username) { document.getElementById('uErr').textContent='Required'; return; }
+      if (password.length < 8) { document.getElementById('pErr').textContent='At least 8 characters'; return; }
+      const deviceId = getDeviceId();
+      const res = await fetch('/api/signup',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({username,password,deviceId})});
+      const data = await res.json();
+      if (data.success) {
+        document.getElementById('recovery').textContent = data.recovery_code;
+        document.getElementById('recoveryBox').style.display='block';
+        Toastify({ text:'Account created', backgroundColor:'#4caf50', duration:3000 }).showToast();
+        setTimeout(()=>location.href='/',4000);
+      } else {
+        Toastify({ text:data.error || 'Error', backgroundColor:'#c00', duration:3000 }).showToast();
+        if (res.status===409) document.getElementById('uErr').textContent='Username already exists';
+        else if (res.status===429) document.getElementById('deviceErr').textContent='This device already has an account';
+      }
+    };
+  </script>
+</body>
 </html>

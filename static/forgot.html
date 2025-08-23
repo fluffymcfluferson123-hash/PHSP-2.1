@@ -1,0 +1,45 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Reset Password</title>
+  <link rel="stylesheet" href="/style.css" />
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/toastify-js/src/toastify.min.css" />
+</head>
+<body>
+  <div class="card">
+    <h1>Reset Password</h1>
+    <input id="username" placeholder="Username" />
+    <div id="uErr" class="error"></div>
+    <input id="code" placeholder="Recovery code" />
+    <div id="cErr" class="error"></div>
+    <input id="password" type="password" placeholder="New password" />
+    <div id="pErr" class="error"></div>
+    <button id="resetBtn">Reset</button>
+    <p><a href="/li">Back to login</a></p>
+  </div>
+  <script src="https://cdn.jsdelivr.net/npm/toastify-js"></script>
+  <script>
+    document.getElementById('resetBtn').onclick = async () => {
+      const username = document.getElementById('username').value.trim();
+      const code = document.getElementById('code').value.trim();
+      const password = document.getElementById('password').value;
+      document.getElementById('uErr').textContent='';
+      document.getElementById('cErr').textContent='';
+      document.getElementById('pErr').textContent='';
+      if (!username) { document.getElementById('uErr').textContent='Required'; return; }
+      if (!code) { document.getElementById('cErr').textContent='Required'; return; }
+      if (password.length < 8) { document.getElementById('pErr').textContent='At least 8 characters'; return; }
+      const res = await fetch('/api/forgot/reset',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({username,recovery_code:code,new_password:password})});
+      const data = await res.json();
+      if (data.success) {
+        Toastify({ text:'Password reset', backgroundColor:'#4caf50', duration:3000 }).showToast();
+        setTimeout(()=>location.href='/li',3000);
+      } else {
+        Toastify({ text:data.error || 'Error', backgroundColor:'#c00', duration:3000 }).showToast();
+        if (res.status===400) document.getElementById('cErr').textContent='Invalid information';
+      }
+    };
+  </script>
+</body>
+</html>

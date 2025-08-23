@@ -1,40 +1,42 @@
 <!doctype html>
 <html lang="en">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="referrer" content="no-referrer" />
-    <meta http-equiv="X-Frame-Options" content="SAMEORIGIN" />
-    <meta http-equiv="X-Content-Type-Options" content="nosniff" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <link rel="shortcut icon" id="tab-favicon" href="favicon.png" />
-    <title id="tab-title">Login</title>
-    <link rel="stylesheet" href="/assets/css/global.css?v=2" />
-    <link rel="stylesheet" href="/assets/css/login.css" />
-    <link rel="stylesheet" href="/assets/css/nav.css" />
-    <script src="https://kit.fontawesome.com/1237c86ba0.js" crossorigin="anonymous"></script>
-  </head>
-  <body>
-    <div class="fixed-nav-bar"></div>
-    <div class="auth-container">
-      <form id="login-form" class="auth-form">
-        <h2>Login</h2>
-        <input type="text" id="login-username" placeholder="Username" required autocomplete="username" />
-        <input type="password" id="login-password" placeholder="Password" required autocomplete="current-password" />
-        <p id="login-error" class="error-message"></p>
-        <button type="submit">Login</button>
-        <button type="button" id="show-reset" class="link-button">Forgot Password?</button>
-      </form>
-      <form id="reset-form" class="auth-form" style="display: none">
-        <h2>Reset Password</h2>
-        <input type="text" id="reset-username" placeholder="Username" required autocomplete="username" />
-        <input type="password" id="reset-password" placeholder="New Password" required autocomplete="new-password" />
-        <p id="reset-error" class="error-message"></p>
-        <button type="submit">Reset</button>
-      </form>
-    </div>
-    <div class="auth-toggle">
-      <a href="/su" class="switch-link">Sign Up</a>
-    </div>
-    <script src="/assets/scripts/login.js"></script>
-  </body>
+<head>
+  <meta charset="UTF-8" />
+  <title>Login</title>
+  <link rel="stylesheet" href="/style.css" />
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/toastify-js/src/toastify.min.css" />
+</head>
+<body>
+  <div class="card">
+    <h1>Login</h1>
+    <input id="username" placeholder="Username" />
+    <div id="uErr" class="error"></div>
+    <input id="password" type="password" placeholder="Password" />
+    <div id="pErr" class="error"></div>
+    <button id="loginBtn">Login</button>
+    <p><a href="/signup">Need an account? Sign up</a> | <a href="/forgot">Forgot password?</a></p>
+  </div>
+  <script src="https://cdn.jsdelivr.net/npm/toastify-js"></script>
+  <script>
+    const uInput = document.getElementById('username');
+    const pInput = document.getElementById('password');
+    document.getElementById('loginBtn').onclick = async () => {
+      const username = uInput.value.trim();
+      const password = pInput.value;
+      document.getElementById('uErr').textContent = '';
+      document.getElementById('pErr').textContent = '';
+      if (!username) { document.getElementById('uErr').textContent = 'Required'; return; }
+      if (!password) { document.getElementById('pErr').textContent = 'Required'; return; }
+      const res = await fetch('/api/login', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ username, password }) });
+      const data = await res.json();
+      if (data.success) {
+        Toastify({ text: 'Logged in', backgroundColor: '#4caf50', duration: 1500 }).showToast();
+        setTimeout(() => location.href = '/', 1500);
+      } else {
+        Toastify({ text: data.error || 'Error', backgroundColor: '#c00' }).showToast();
+        if (res.status === 401) document.getElementById('pErr').textContent = 'Invalid credentials';
+      }
+    };
+  </script>
+</body>
 </html>
