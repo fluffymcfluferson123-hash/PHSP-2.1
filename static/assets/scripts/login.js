@@ -1,37 +1,60 @@
 document.addEventListener("DOMContentLoaded", () => {
-  const signupForm = document.getElementById("signup-form")
   const loginForm = document.getElementById("login-form")
-
-  async function handleAuth(url, username, password) {
-    const res = await fetch(url, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ username, password }),
-    })
-    return res.ok
-  }
-
-  signupForm.addEventListener("submit", async (e) => {
-    e.preventDefault()
-    const username = document.getElementById("signup-username").value.trim()
-    const password = document.getElementById("signup-password").value
-    if (await handleAuth("/api/signup", username, password)) {
-      localStorage.setItem("registered", "true")
-      window.location.href = "/./as"
-    } else {
-      alert("Signup failed")
-    }
-  })
+  const loginError = document.getElementById("login-error")
+  const showReset = document.getElementById("show-reset")
+  const resetForm = document.getElementById("reset-form")
+  const resetError = document.getElementById("reset-error")
 
   loginForm.addEventListener("submit", async (e) => {
     e.preventDefault()
+    loginError.textContent = ""
     const username = document.getElementById("login-username").value.trim()
     const password = document.getElementById("login-password").value
-    if (await handleAuth("/api/login", username, password)) {
-      localStorage.setItem("registered", "true")
-      window.location.href = "/./as"
-    } else {
-      alert("Invalid credentials")
+    try {
+      const res = await fetch("/api/login", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ username, password }),
+      })
+      if (res.ok) {
+        localStorage.setItem("registered", "true")
+        window.location.href = "/as"
+      } else {
+        const data = await res.json().catch(() => ({}))
+        loginError.textContent = data.error || "Invalid credentials"
+      }
+    } catch (err) {
+      loginError.textContent = "Network error"
+    }
+  })
+
+  showReset.addEventListener("click", () => {
+    resetForm.style.display = "flex"
+  })
+
+  resetForm.addEventListener("submit", async (e) => {
+    e.preventDefault()
+    resetError.textContent = ""
+    const username = document.getElementById("reset-username").value.trim()
+    const password = document.getElementById("reset-password").value
+    if (password.length < 8) {
+      resetError.textContent = "Password must be at least 8 characters."
+      return
+    }
+    try {
+      const res = await fetch("/api/reset", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ username, password }),
+      })
+      if (res.ok) {
+        resetError.textContent = "Password reset. Please login."
+      } else {
+        const data = await res.json().catch(() => ({}))
+        resetError.textContent = data.error || "Reset failed"
+      }
+    } catch (err) {
+      resetError.textContent = "Network error"
     }
   })
 })

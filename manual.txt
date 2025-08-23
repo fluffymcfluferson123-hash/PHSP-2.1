@@ -1,0 +1,32 @@
+Railway Database Connection Manual
+
+1. Create a Railway project and add the PostgreSQL plugin.
+   - https://railway.app > New Project > Provision PostgreSQL.
+
+2. In the PostgreSQL service settings copy the `DATABASE_URL` value.
+
+3. In the Railway project, open the Variables tab and add:
+   - Key: `DATABASE_URL`
+   - Value: paste the connection string from step 2.
+
+4. Deploy the project so the variable is available to the server.
+
+5. Initialize the database:
+   - Open the PostgreSQL service > `Connect` > `PSQL`.
+   - Run:
+     ```sql
+     CREATE TABLE IF NOT EXISTS users (
+       id SERIAL PRIMARY KEY,
+       username TEXT UNIQUE NOT NULL,
+       password TEXT NOT NULL
+     );
+     ```
+
+6. Start the server (`npm start`). The app will now read `DATABASE_URL` and
+   store users in the Railway database.
+
+Additional manual tasks:
+- If you need to allow password resets, ensure the server is running with the
+  same `DATABASE_URL` so `/api/reset` updates the table.
+- To prevent multiple accounts per device, the browser uses `localStorage`.
+  Clearing site data will remove this restriction.

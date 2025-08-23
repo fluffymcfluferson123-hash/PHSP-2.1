@@ -53,3 +53,27 @@ body {
 .auth-form button:hover {
   background: var(--tab-hover);
 }
+
+.error-message {
+  color: red;
+  font-size: 0.9rem;
+}
+
+.link-button {
+  background: none;
+  border: none;
+  color: var(--text-primary);
+  cursor: pointer;
+  text-decoration: underline;
+  padding: 0;
+}
+
+.auth-toggle {
+  margin-top: 1rem;
+  text-align: center;
+}
+
+.switch-link {
+  color: var(--text-primary);
+  text-decoration: underline;
+}
