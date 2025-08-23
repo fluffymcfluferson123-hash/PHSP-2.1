@@ -96,7 +96,7 @@ select {
   display: flex;
   justify-content: center;
   gap: 0.5em;
-  margin-top: 100px;
+  margin-top: 130px;
 }
 
 .mode-toggle button {
@@ -132,4 +132,3 @@ select {
 .status-badge.error {
   color: #d50000;
 }
-
