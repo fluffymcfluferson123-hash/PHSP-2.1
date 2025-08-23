@@ -1,0 +1,55 @@
+Railway Database Setup Guide
+
+1. Create a Railway project
+   - Sign in at https://railway.app and create a new project.
+   - Choose the PostgreSQL template to provision a database service.
+
+2. Note the connection details
+   - In the Railway dashboard, open the PostgreSQL service.
+   - Copy the `DATABASE_URL` or individual host, user, password, and database values.
+
+3. Configure environment variables for the app
+
+   - In your Railway project, add an environment variable named `DATABASE_URL` with the value:
+     `postgresql://postgres:mTjSMxKVFSkkUcMneXgFxjVnkoSKoFTF@postgres.railway.internal:5432/railway`
+
+   - In your Railway project, add an environment variable named `DATABASE_URL` with the value from step 2.
+
+   - Redeploy the project so the variable is available to the server.
+
+4. Create a users table
+   - Connect to the database using the built‑in SQL editor or any PostgreSQL client.
+   - Run:
+     ```sql
+     CREATE TABLE users (
+       id SERIAL PRIMARY KEY,
+       username TEXT UNIQUE NOT NULL,
+       password TEXT NOT NULL
+     );
+     ```
+
+5. Implement server routes
+
+   - The repository already includes `/api/signup` and `/api/login` POST routes in `index.js`.
+   - They connect using the `pg` npm package and store passwords hashed with SHA‑256.
+
+   - Add `/auth/signup` and `/auth/login` POST routes in `index.js`.
+   - Use the `pg` npm package to connect to the database with `process.env.DATABASE_URL`.
+   - On signup, hash the password (for example with `bcrypt`) and insert a new row into `users`.
+
+
+6. Hook up the frontend
+   - In `static/assets/scripts/login.js`, replace the localStorage logic with `fetch` calls to `/auth/signup` and `/auth/login`.
+   - On successful responses, set `localStorage.registered = 'true'` and redirect the user.
+
+
+7. Install dependencies and deploy
+   - Run `npm install` to download the `pg` package if it is not already present.
+   - Commit any updated lock files and push to the Railway GitHub repository or deploy directly from the dashboard.
+
+7. Deploy
+   - Commit your changes and push to the Railway GitHub repository or deploy directly from the dashboard.
+
+   - The environment variable will allow the server to reach the database at runtime.
+
+Following these steps will provide a fully functional signup/login system backed by Railway.
