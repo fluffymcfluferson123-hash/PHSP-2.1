@@ -13,7 +13,7 @@
   "author": "PHSPNetwork",
   "license": "GPL-3.0-or-later",
   "dependencies": {
-    "@tomphttp/bare-server-node": "^2.0.3",
+    "@tomphttp/bare-server-node": "^2.0.5",
     "cookie-parser": "^1.4.6",
     "cors": "^2.8.5",
     "dotenv": "^16.4.5",
